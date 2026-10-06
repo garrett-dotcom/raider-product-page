@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="RAIDER is a macOS storage and thermal management application in development, with tools for storage organization, device health, and controller telemetry.">
+  <title>RAIDER — Storage &amp; Thermal for macOS</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101417; --surface: #192126; --text: #f2f5f4; --muted: #b6c1c4; --accent: #86e0ba; --border: #314047; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; }
+    main, footer { width: min(100% - 48px, 1000px); margin-inline: auto; }
+    header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; align-items: center; padding: 32px 0; border-bottom: 1px solid var(--border); }
+    .brand { font-weight: 800; letter-spacing: .13em; font-size: 21px; }
+    .status { color: var(--accent); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 13px; }
+    .hero { padding: 80px 0 64px; max-width: 820px; }
+    .eyebrow { color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { font-size: clamp(38px, 7vw, 68px); line-height: 1.1; letter-spacing: -.04em; margin: 20px 0 26px; }
+    .lead { font-size: 21px; color: var(--muted); max-width: 670px; }
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    article { padding: 26px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
+    h2 { font-size: 21px; line-height: 1.35; margin: 0 0 14px; }
+    p { margin: 0 0 18px; }
+    article p { color: var(--muted); font-size: 16px; margin: 0; }
+    .development { padding: 52px 0; max-width: 750px; }
+    .development p { color: var(--muted); }
+    footer { padding: 24px 0 32px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+    @media (max-width: 700px) { .features { grid-template-columns: 1fr; } .hero { padding: 52px 0 40px; } main, footer { width: min(100% - 32px, 1000px); } }
+  </style>
+</head>
+<body>
+  <main>
+    <header><span class="brand">RAIDER</span><span class="status">macOS · In development</span></header>
+    <section class="hero" aria-labelledby="headline">
+      <p class="eyebrow">Storage &amp; Thermal</p>
+      <h1>A clearer view of your storage.</h1>
+      <p class="lead">RAIDER brings storage organization, device health, and thermal controller telemetry into a macOS application.</p>
+    </section>
+    <section class="features" aria-label="Application areas">
+      <article><h2>Storage management</h2><p>Tools for inspecting connected storage, organizing files, and managing copy and comparison workflows.</p></article>
+      <article><h2>Drive health</h2><p>Work in progress on read-only drive identity and SMART health reporting through supported USB storage bridges.</p></article>
+      <article><h2>Thermal telemetry</h2><p>Controller telemetry over serial and authenticated local-network connections, with sensor freshness and commissioning status.</p></article>
+    </section>
+    <section class="development" aria-labelledby="development-title">
+      <h2 id="development-title">Currently in development</h2>
+      <p>RAIDER is being developed for macOS, with Mac App Store distribution planned. There is no public download or release date yet.</p>
+      <p>Native drive-health access and physical controller integration are undergoing development and testing. Device compatibility and hardware operation have not yet been fully verified.</p>
+    </section>
+  </main>
+  <footer>RAIDER · Storage &amp; Thermal for macOS</footer>
+</body>
+</html>
