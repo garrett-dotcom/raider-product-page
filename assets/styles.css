@@ -25,3 +25,7 @@ header{position:fixed;background:#000000b8;backdrop-filter:blur(18px);-webkit-ba
 
 /* Curved flight is driven by path position, heading and coordinated bank. */
 .aircraft,.motion-enabled .aircraft,.motion-paused .aircraft{left:0;top:0;right:auto;animation:none;transform-origin:50% 50%;backface-visibility:visible;will-change:transform,opacity}
+
+.cargo{position:absolute;left:0;top:0;width:38px;height:54px;z-index:1;pointer-events:none;will-change:transform;filter:drop-shadow(0 3px 4px #0009)}.cargo svg{display:block;width:100%;height:100%}@media(max-width:760px){.cargo{width:28px;height:40px}}
+
+.cargo.ssd{width:31px;height:44px}@media(max-width:760px){.cargo.ssd{width:23px;height:33px}}

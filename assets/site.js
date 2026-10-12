@@ -19,6 +19,49 @@
   let metersPerPixel = 1;
   let points = [];
   const duration = 24000;
+  const cargo = [];
+  const releases = [.28,.35,.42,.49];
+  let previousProgress = 0;
+  const deviceArt = kind => kind === 'HDD'
+    ? '<svg viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="40" height="58" rx="4" fill="#202932" stroke="#9bd9ff"/><circle cx="22" cy="24" r="14" fill="#101820" stroke="#849bab"/><circle cx="22" cy="24" r="4" stroke="#b9d4e4"/><path d="m34 39-12-15" stroke="#c5d9e6" stroke-width="3"/><path d="M10 56h24" stroke="#f7d64a" stroke-width="3"/><text x="22" y="49" fill="#b9d4e4" font-size="7" text-anchor="middle" font-family="monospace">HDD</text></svg>'
+    : '<svg viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="40" height="58" rx="4" fill="#12191d" stroke="#72db45"/><rect x="8" y="12" width="28" height="31" rx="2" fill="#222d30" stroke="#687e82"/><text x="22" y="31" fill="#bce4a7" font-size="9" text-anchor="middle" font-family="monospace">SSD</text><path d="M10 56h24" stroke="#f7d64a" stroke-width="3"/></svg>';
+  const dropDevice = (pose, index) => {
+    const kind = index % 2 === 0 ? 'HDD' : 'SSD';
+    const element = document.createElement('div');
+    element.className = 'cargo '+kind.toLowerCase();
+    element.setAttribute('aria-hidden','true');
+    element.innerHTML = deviceArt(kind);
+    hero.append(element);
+    const tangent = Math.hypot(pose.dx,pose.dy);
+    const velocity = distance/(duration/1000)*metersPerPixel;
+    cargo.push({element, x:pose.x, y:pose.y+aircraft.offsetHeight*.13,
+      vx:pose.dx/tangent*velocity, vy:pose.dy/tangent*velocity,
+      angle: index%2 ? -12 : 18, spin: index%2 ? -82 : 56,
+      mass:kind==='HDD'?.45:.09, area:kind==='HDD'?.012:.006, age:0});
+  };
+  const stepCargo = dt => {
+    // Quadratic aerodynamic drag plus gravity; released objects inherit flight velocity.
+    for (let i=cargo.length-1;i>=0;i--) {
+      const item = cargo[i];
+      const steps = Math.max(1,Math.ceil(dt/.008));
+      const step = dt/steps;
+      for (let j=0;j<steps;j++) {
+        const speed = Math.hypot(item.vx,item.vy);
+        const drag = .5*1.225*1.1*item.area/item.mass;
+        item.vx += -drag*speed*item.vx*step;
+        item.vy += (9.81-drag*speed*item.vy)*step;
+        item.x += item.vx/metersPerPixel*step;
+        item.y += item.vy/metersPerPixel*step;
+        item.angle += item.spin*step;
+        item.spin *= Math.exp(-.12*step);
+      }
+      item.age += dt;
+      item.element.style.transform=`translate3d(${item.x-item.element.offsetWidth/2}px,${item.y-item.element.offsetHeight/2}px,0) rotate(${item.angle}deg)`;
+      if (item.y>hero.clientHeight+100 || item.x < -150 || item.x>hero.clientWidth+150 || item.age>30) {
+        item.element.remove();cargo.splice(i,1);
+      }
+    }
+  };
   const noseAngle = 142 * Math.PI / 180;
   const sample = t => {
     const u = 1 - t;
@@ -37,8 +80,8 @@
     const h = hero.clientHeight;
     const mobile = w <= 760;
     const coordinates = mobile
-      ? [[1.25,.55],[.55,.50],[.95,.95],[-.28,.82]]
-      : [[1.18,.12],[.98,.85],[.42,.12],[-.15,.94]];
+      ? [[1.25,.20],[.55,.12],[.95,.26],[-.28,.21]]
+      : [[1.18,.015],[.98,.56],[.42,.015],[-.15,.65]];
     points = coordinates.map(([x,y]) => ({x:x*w,y:y*h}));
     route = [{t:0,length:0}];
     distance = 0;
@@ -76,12 +119,21 @@
     const y = pose.y-aircraft.offsetHeight/2;
     aircraft.style.transform = `translate3d(${x}px,${y}px,0) rotateZ(${heading*180/Math.PI}deg) rotate3d(${Math.cos(noseAngle)},${Math.sin(noseAngle)},0,${bank}deg)`;
     aircraft.style.opacity = '1';
+    return pose;
   };
   const tick = time => {
     if (paused || !visible || document.hidden) { frame=0;lastTime=null;return; }
-    if (lastTime !== null) elapsed += Math.min(time-lastTime,100);
+    const dt = lastTime === null ? 0 : Math.min(time-lastTime,100)/1000;
+    elapsed += dt*1000;
     lastTime=time;
-    paint((elapsed%duration)/duration);
+    const progress = (elapsed%duration)/duration;
+    if (progress < previousProgress) previousProgress = 0;
+    const pose = paint(progress);
+    releases.forEach((release,index) => {
+      if (previousProgress<release && progress>=release) dropDevice(pose,index);
+    });
+    previousProgress = progress;
+    stepCargo(dt);
     frame=requestAnimationFrame(tick);
   };
   const start = () => { if (!paused && visible && !document.hidden && !frame) frame=requestAnimationFrame(tick); };
