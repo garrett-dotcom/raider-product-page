@@ -6,6 +6,25 @@
   const aircraft = document.querySelector('.aircraft');
   const sideView = document.querySelector('.side-view');
   const bankView = document.querySelector('.bank-view');
+  const bellyView = document.querySelector('.belly-view');
+  const departureView = document.querySelector('.departure-view');
+  const bay = document.querySelector('.payload-bay');
+  const farDoor = document.querySelector('.door-far');
+  const nearDoor = document.querySelector('.door-near');
+  const door = { angle:0, velocity:0 };
+  const operateDoors = (progress,dt) => {
+    const target = progress>.23 && progress<.466 ? 85 : 0;
+    const steps = Math.max(1,Math.ceil(dt/.008));
+    const step = dt/steps;
+    for(let i=0;i<steps;i++) {
+      // Critically damped rotary actuator, with closed/open mechanical stops.
+      door.velocity += (36*(target-door.angle)-12*door.velocity)*step;
+      door.angle = Math.max(0,Math.min(85,door.angle+door.velocity*step));
+    }
+    farDoor.style.transform = `rotateX(${-door.angle}deg)`;
+    nearDoor.style.transform = `rotateX(${door.angle}deg)`;
+    bay.style.setProperty('--bay-open',String(door.angle/85));
+  };
   const updateHeader = () => header?.classList.toggle('at-top', window.scrollY < 40);
   updateHeader();
   window.addEventListener('scroll', updateHeader, { passive: true });
@@ -24,6 +43,7 @@
   const cargo = [];
   const releases = [.30,.35,.40,.45];
   let previousProgress = 0;
+  const released = new Set();
   const deviceArt = kind => kind === 'HDD'
     ? '<svg viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="40" height="58" rx="4" fill="#202932" stroke="#9bd9ff"/><circle cx="22" cy="24" r="14" fill="#101820" stroke="#849bab"/><circle cx="22" cy="24" r="4" stroke="#b9d4e4"/><path d="m34 39-12-15" stroke="#c5d9e6" stroke-width="3"/><path d="M10 56h24" stroke="#f7d64a" stroke-width="3"/><text x="22" y="49" fill="#b9d4e4" font-size="7" text-anchor="middle" font-family="monospace">HDD</text></svg>'
     : '<svg viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="40" height="58" rx="4" fill="#12191d" stroke="#72db45"/><rect x="8" y="12" width="28" height="31" rx="2" fill="#222d30" stroke="#687e82"/><text x="22" y="31" fill="#bce4a7" font-size="9" text-anchor="middle" font-family="monospace">SSD</text><path d="M10 56h24" stroke="#f7d64a" stroke-width="3"/></svg>';
@@ -36,7 +56,9 @@
     hero.append(element);
     const tangent = Math.hypot(pose.dx,pose.dy);
     const velocity = distance/(duration/1000)*metersPerPixel;
-    cargo.push({element, x:pose.x, y:pose.y+aircraft.offsetWidth*.055+element.offsetHeight/2+3,
+    const opening = bay.getBoundingClientRect();
+    const stage = hero.getBoundingClientRect();
+    cargo.push({element, x:opening.x+opening.width/2-stage.x, y:opening.bottom-stage.y+element.offsetHeight/2+2,
       vx:pose.dx/tangent*velocity, vy:pose.dy/tangent*velocity,
       angle: index%2 ? -12 : 18, spin: index%2 ? -82 : 56,
       mass:kind==='HDD'?.45:.09, area:kind==='HDD'?.012:.006, age:0});
@@ -67,17 +89,17 @@
   const noseAngle = Math.PI;
   const sample = progress => {
     const w = hero.clientWidth;
-    if (progress <= .58) return {x:w*(1.2-1.3*progress),y:points[0].y,dx:-1.3*w,dy:0,ddx:0,ddy:0};
-    const t = (progress-.58)/.42;
+    if (progress <= .64) return {x:w*(1.2-1.3*progress),y:points[0].y,dx:-1.3*w,dy:0,ddx:0,ddy:0};
+    const t = (progress-.64)/.36;
     const u = 1 - t;
     const [a, b, c, d] = points;
     return {
       x: u*u*u*a.x + 3*u*u*t*b.x + 3*u*t*t*c.x + t*t*t*d.x,
       y: u*u*u*a.y + 3*u*u*t*b.y + 3*u*t*t*c.y + t*t*t*d.y,
-      dx: (3*u*u*(b.x-a.x) + 6*u*t*(c.x-b.x) + 3*t*t*(d.x-c.x))/.42,
-      dy: (3*u*u*(b.y-a.y) + 6*u*t*(c.y-b.y) + 3*t*t*(d.y-c.y))/.42,
-      ddx: (6*u*(c.x-2*b.x+a.x) + 6*t*(d.x-2*c.x+b.x))/(.42*.42),
-      ddy: (6*u*(c.y-2*b.y+a.y) + 6*t*(d.y-2*c.y+b.y))/(.42*.42)
+      dx: (3*u*u*(b.x-a.x) + 6*u*t*(c.x-b.x) + 3*t*t*(d.x-c.x))/.36,
+      dy: (3*u*u*(b.y-a.y) + 6*u*t*(c.y-b.y) + 3*t*t*(d.y-c.y))/.36,
+      ddx: (6*u*(c.x-2*b.x+a.x) + 6*t*(d.x-2*c.x+b.x))/(.36*.36),
+      ddy: (6*u*(c.y-2*b.y+a.y) + 6*t*(d.y-2*c.y+b.y))/(.36*.36)
     };
   };
   const buildRoute = () => {
@@ -85,8 +107,8 @@
     const h = hero.clientHeight;
     const mobile = w <= 760;
     const coordinates = mobile
-      ? [[.446,.63],[.264,.63],[.05,.63],[-.3,.42]]
-      : [[.446,.28],[.264,.28],[.05,.28],[-.3,-.10]];
+      ? [[.368,.63],[.212,.63],[.05,.63],[-.3,.42]]
+      : [[.368,.28],[.212,.28],[.05,.28],[-.3,-.10]];
     points = coordinates.map(([x,y]) => ({x:x*w,y:y*h}));
     route = [{t:0,length:0}];
     distance = 0;
@@ -124,9 +146,11 @@
     const y = pose.y-aircraft.offsetHeight/2;
     aircraft.style.transform = `translate3d(${x}px,${y}px,0) rotateZ(${heading*180/Math.PI}deg) rotate3d(${Math.cos(noseAngle)},${Math.sin(noseAngle)},0,${bank}deg)`;
     aircraft.style.opacity = '1';
-    const wingVisibility = Math.min(1,Math.abs(Math.sin(bank*Math.PI/180))/Math.sin(28*Math.PI/180));
-    sideView.style.opacity = String(1-wingVisibility);
-    bankView.style.opacity = String(wingVisibility);
+    // Clean camera cuts keep one solid airframe visible; never morph two silhouettes.
+    const view = progress<.23 ? sideView : progress<.54 ? bellyView : progress<.78 ? bankView : departureView;
+    for (const candidate of [sideView,bellyView,bankView,departureView]) {
+      candidate.style.opacity = candidate===view ? '1' : '0';
+    }
     return pose;
   };
   const tick = time => {
@@ -135,10 +159,13 @@
     elapsed += dt*1000;
     lastTime=time;
     const progress = (elapsed%duration)/duration;
-    if (progress < previousProgress) previousProgress = 0;
+    if (progress < previousProgress) { previousProgress = 0;released.clear(); }
+    operateDoors(progress,dt);
     const pose = paint(progress);
     releases.forEach((release,index) => {
-      if (previousProgress<release && progress>=release) dropDevice(pose,index);
+      if (!released.has(index) && progress>=release && progress<.466 && door.angle>=70) {
+        dropDevice(pose,index);released.add(index);
+      }
     });
     previousProgress = progress;
     stepCargo(dt);
