@@ -44,7 +44,14 @@ window.createRaiderAircraft = canvas => {
     [.7,-.2106,z,2146/2172,1],[-.7,-.2106,z,26/2172,1]
   ));
   const profiles=[profile(-.035),profile(.035)];
-  const doorMesh=makeMesh(new Array(60).fill(0));
+  // Fixed lower fuselage cheeks occlude the internal hinges, using the same skin artwork.
+  const bayCheek=z=>makeMesh(quad(...[[-.235,.022],[.135,.022],[.135,-.10],[-.235,-.10]].map(([x,y])=>[x,y,z,(26+(x+.7)/1.4*2120)/2172,(.2675-y)/.4781])));
+  const bayCheeks=[bayCheek(-.15),bayCheek(.15)];
+  const doorPanels=[makeMesh([]),makeMesh([])],doorEdges=makeMesh([]),bayCavity=makeMesh([]),hingeRoots=makeMesh([]);
+  // Skin contour sampled from the opaque underside of the existing profile texture.
+  const skin=[-.04287,-.04287,-.04287,-.04287,-.03957,-.03627,-.03428,-.03164,-.02768,-.02372,-.01910,-.01579,-.01249];
+  const contour=t=>{const f=Math.max(0,Math.min(12,t*12)),i=Math.min(11,Math.floor(f));return skin[i]+(skin[i+1]-skin[i])*(f-i);};
+  const updateMesh=(mesh,data)=>{gl.bindBuffer(gl.ARRAY_BUFFER,mesh.buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);mesh.count=data.length/5;};
   let lastPose={bank:0,doors:0,size:120},width=0,ratio=0,ready=0;
   const texture=url=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,0]));
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
@@ -59,9 +66,48 @@ window.createRaiderAircraft = canvas => {
     gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
     gl.uniform1f(locations.roll,bank*Math.PI/180);gl.uniform1f(locations.projection,1/1.45);
     draw(underside,overhead,[.58,.62,.66,1]);draw(wing,overhead);profiles.forEach(p=>draw(p,side));
-    const angle=doors*Math.PI/180,data=[];
-    for(const sign of [-1,1]){const z=sign*.08,y=-.05,edgeY=y-.08*Math.sin(angle),edgeZ=z-sign*.08*Math.cos(angle);data.push(...quad([-.20,y,z,0,0],[.12,y,z,1,0],[.12,edgeY,edgeZ,1,1],[-.20,edgeY,edgeZ,0,1]));}
-    gl.bindBuffer(gl.ARRAY_BUFFER,doorMesh.buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);draw(doorMesh,white,[.62,.68,.73,1]);
+    const commandedAngle=doors*Math.PI/180,edges=[],cavity=[],roots=[];
+    for(const [index,sign] of [-1,1].entries()) {
+      const panel=[];
+      // The near leaf opens fully while the far leaf trails slightly. From a true
+      // side view this prevents the two physical leaves collapsing into one slab.
+      const angle=commandedAngle*(sign<0?.82:1),hingeY=-.028,hingeZ=sign*.122;
+      // Every panel vertex rotates about ONE straight fore/aft hinge; the skin never stretches.
+      const point=(t,span,depth=0)=>{
+        // A tiny fore/aft parallax offset reveals both leaves from the oblique
+        // side camera without changing the aircraft's flight attitude.
+        const x=-.205+.305*t+sign*.015+span*.022*(1-2*t),y=contour(t)+depth;
+        // Beveled ends and a curved outboard edge keep each leaf part of the airframe.
+        const breadth=.078*(.72+.28*Math.sin(Math.PI*t));
+        const z=hingeZ-sign*breadth*span,dy=y-hingeY,dz=z-hingeZ;
+        return [x,hingeY+dy*Math.cos(angle)+sign*dz*Math.sin(angle),hingeZ-sign*dy*Math.sin(angle)+dz*Math.cos(angle),.40+.14*t,.563+.023*span];
+      };
+      for(let j=0;j<12;j++) {
+        const t=j/12,next=(j+1)/12;
+        panel.push(...quad(point(t,0),point(next,0),point(next,1),point(t,1)));
+        // Rolled metal edge gives the leaf thickness, rather than a floating flat card.
+        edges.push(...quad(point(t,1),point(next,1),point(next,1,.0025),point(t,1,.0025)));
+        // A shallow dark throat sits directly inside the skin, disappearing when latched.
+        // The dark bay throat is recessed directly into the underside skin.
+        const opening=.012*Math.sin(commandedAngle);
+        cavity.push(...quad([-.205+.305*t,contour(t)+.002,sign*.160,0,0],[-.205+.305*next,contour(next)+.002,sign*.160,1,0],[-.205+.305*next,contour(next)-opening,sign*.160,1,1],[-.205+.305*t,contour(t)-opening,sign*.160,0,1]));
+      }
+      // Stiffening seams lie on the leaf and rotate with it.
+      for(const t of [.22,.50,.78]) edges.push(...quad(point(t,0,.0015),point(t+.005,0,.0015),point(t+.005,1,.0015),point(t,1,.0015)));
+      // Two compact hinge roots remain embedded in the fuselage as the leaf moves.
+      for(const t of [.23,.70]) {
+        const x=-.205+.305*t,w=.020,y=contour(t)-.002,z=hingeZ;
+        roots.push(...quad([x-w,y+.006,z,0,0],[x+w,y+.006,z,1,0],[x+w,y-.010,z,1,1],[x-w,y-.010,z,0,1]));
+      }
+      updateMesh(doorPanels[index],panel);
+    }
+    updateMesh(doorEdges,edges);updateMesh(bayCavity,cavity);updateMesh(hingeRoots,roots);
+    if(doors>.1)draw(bayCavity,white,[.035,.045,.052,1]);
+    draw(doorPanels[0],side,[.44,.50,.55,1]);draw(doorPanels[1],side,[.90,.94,.97,1]);
+    draw(doorEdges,white,[.25,.30,.34,1]);
+    draw(hingeRoots,white,[.32,.38,.42,1]);
+    bayCheeks.forEach(cheek=>draw(cheek,side));
+    canvas.dataset.doorAngle=doors.toFixed(2);
     canvas.dataset.renderer='textured-rigid';canvas.dataset.bankAngle=bank.toFixed(2);
   };
   return paint;
