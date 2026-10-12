@@ -35,3 +35,6 @@ header{position:fixed;background:#000000b8;backdrop-filter:blur(18px);-webkit-ba
 
 /* Side-profile belly hinges: doors swing downward, not toward the camera. */
 .side-view{transform-style:preserve-3d}.payload-bay{position:absolute;left:40%;top:62%;width:20%;height:3px;transform:translateX(-50%);perspective:180px;transform-style:preserve-3d}.bay-interior{position:absolute;inset:0;background:#030609;opacity:var(--bay-open,0)}.bay-door{position:absolute;left:0;right:0;height:9px;background:linear-gradient(180deg,#a3afb7,#d0d6da);border:1px solid #84949e;backface-visibility:visible;transform-style:preserve-3d}.door-far{bottom:100%;transform-origin:center bottom;transform:rotateX(90deg);filter:brightness(.75)}.door-near{top:0;transform-origin:center top;transform:rotateX(90deg)}
+
+/* A single assembled aircraft throughout the pass; wing exposure follows roll continuously. */
+.bank-view{z-index:0;left:-12%;right:12%;pointer-events:none}.side-view{z-index:1}.payload-bay{z-index:2}

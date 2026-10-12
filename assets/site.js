@@ -93,15 +93,20 @@
     const w = hero.clientWidth;
     if (progress <= .68) return {x:w*(1.2-1.3*progress),y:points[0].y,dx:-1.3*w,dy:0,ddx:0,ddy:0};
     const t = (progress-.68)/.32;
-    const u = 1 - t;
-    const [a, b, c, d] = points;
+    const start = points[0];
+    const end = points[3];
+    const lead = -1.3*w*.32;
+    const bend = end.x-start.x-lead;
+    const rise = end.y-start.y;
+    // A fourth-order turn has zero curvature and zero roll rate at entry.
+    // It joins the level approach without a sudden roll or acceleration change.
     return {
-      x: u*u*u*a.x + 3*u*u*t*b.x + 3*u*t*t*c.x + t*t*t*d.x,
-      y: u*u*u*a.y + 3*u*u*t*b.y + 3*u*t*t*c.y + t*t*t*d.y,
-      dx: (3*u*u*(b.x-a.x) + 6*u*t*(c.x-b.x) + 3*t*t*(d.x-c.x))/.32,
-      dy: (3*u*u*(b.y-a.y) + 6*u*t*(c.y-b.y) + 3*t*t*(d.y-c.y))/.32,
-      ddx: (6*u*(c.x-2*b.x+a.x) + 6*t*(d.x-2*c.x+b.x))/(.32*.32),
-      ddy: (6*u*(c.y-2*b.y+a.y) + 6*t*(d.y-2*c.y+b.y))/(.32*.32)
+      x:start.x+lead*t+bend*t*t*t*t,
+      y:start.y+rise*t*t*t*t,
+      dx:(lead+4*bend*t*t*t)/.32,
+      dy:4*rise*t*t*t/.32,
+      ddx:12*bend*t*t/(.32*.32),
+      ddy:12*rise*t*t/(.32*.32)
     };
   };
   const buildRoute = () => {
@@ -148,13 +153,11 @@
     const y = pose.y-aircraft.offsetHeight/2;
     aircraft.style.transform = `translate3d(${x}px,${y}px,0) rotateZ(${heading*180/Math.PI}deg) rotate3d(${Math.cos(noseAngle)},${Math.sin(noseAngle)},0,${bank}deg)`;
     aircraft.style.opacity = '1';
-    // Keep a side-on camera throughout approach, opening, release and closure.
-    // The upper wing is exposed only once the closed aircraft actually banks.
-    const banking = Math.abs(bank)>10 && door.angle<1 && released.size===4;
-    sideView.style.opacity = banking ? '0' : '1';
-    bankView.style.opacity = banking ? '1' : '0';
-    // Side-camera wing projection: visible span follows sin(bank), not a full top-view jump.
-    bankView.style.transform = `translateY(-50%) scaleY(${Math.max(.001,Math.tan(Math.abs(bank)*Math.PI/180))}) rotate(38deg)`;
+    // One persistent fuselage and one wing surface: no frame/image swaps.
+    // The profile covers the wing root; the same wing gradually projects into view as it rolls.
+    sideView.style.opacity = '1';
+    bankView.style.opacity = '1';
+    bankView.style.transform = `translateY(-50%) scaleY(${Math.tan(Math.abs(bank)*Math.PI/180)}) rotate(38deg)`;
     const phase = progress<.23 ? 'approach' : progress<.466
       ? door.angle<70 ? 'opening' : 'release'
       : door.angle>=1 ? 'closing' : Math.abs(bank)>1 ? 'bank' : 'level-exit';
