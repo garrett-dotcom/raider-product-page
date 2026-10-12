@@ -4,11 +4,9 @@
   const button = document.querySelector('.motion-control');
   const hero = document.querySelector('.hero');
   const aircraft = document.querySelector('.aircraft');
-  const sideView = document.querySelector('.side-view');
-  const bankView = document.querySelector('.bank-view');
+  const renderAircraft = window.createRaiderAircraft(document.querySelector('.aircraft-model'));
   const bay = document.querySelector('.payload-bay');
-  const farDoor = document.querySelector('.door-far');
-  const nearDoor = document.querySelector('.door-near');
+
   const door = { angle:0, velocity:0 };
   const phaseHistory = [];
   let lastPhase = '';
@@ -18,13 +16,12 @@
     const step = dt/steps;
     for(let i=0;i<steps;i++) {
       // Critically damped rotary actuator, with closed/open mechanical stops.
-      const frequency = target===0 ? 6 : 4;
+      const frequency = target===0 ? 12 : 4;
       door.velocity += (frequency*frequency*(target-door.angle)-2*frequency*door.velocity)*step;
       door.angle = Math.max(0,Math.min(85,door.angle+door.velocity*step));
     }
     if (target===0 && door.angle<1) { door.angle=0;door.velocity=0; }
-    farDoor.style.transform = `rotateX(${90+door.angle}deg)`;
-    nearDoor.style.transform = `rotateX(${90-door.angle}deg)`;
+
     bay.style.setProperty('--bay-open',String(door.angle/85));
   };
   const updateHeader = () => header?.classList.toggle('at-top', window.scrollY < 40);
@@ -60,7 +57,7 @@
     const velocity = distance/(duration/1000)*metersPerPixel;
     const opening = bay.getBoundingClientRect();
     const stage = hero.getBoundingClientRect();
-    cargo.push({element, x:opening.x+opening.width/2-stage.x, y:Math.max(opening.bottom,farDoor.getBoundingClientRect().bottom,nearDoor.getBoundingClientRect().bottom)-stage.y+element.offsetHeight/2+2,
+    cargo.push({element, x:opening.x+opening.width/2-stage.x, y:opening.bottom+aircraft.offsetWidth*.08-stage.y+element.offsetHeight/2+2,
       vx:pose.dx/tangent*velocity, vy:pose.dy/tangent*velocity,
       angle: index%2 ? -12 : 18, spin: index%2 ? -82 : 56,
       mass:kind==='HDD'?.45:.09, area:kind==='HDD'?.012:.006, age:0});
@@ -91,11 +88,11 @@
   const noseAngle = Math.PI;
   const sample = progress => {
     const w = hero.clientWidth;
-    if (progress <= .68) return {x:w*(1.2-1.3*progress),y:points[0].y,dx:-1.3*w,dy:0,ddx:0,ddy:0};
-    const t = (progress-.68)/.32;
+    if (progress <= .65) return {x:w*(1.2-1.3*progress),y:points[0].y,dx:-1.3*w,dy:0,ddx:0,ddy:0};
+    const t = (progress-.65)/.35;
     const start = points[0];
     const end = points[3];
-    const lead = -1.3*w*.32;
+    const lead = -1.3*w*.35;
     const bend = end.x-start.x-lead;
     const rise = end.y-start.y;
     // A fourth-order turn has zero curvature and zero roll rate at entry.
@@ -103,10 +100,10 @@
     return {
       x:start.x+lead*t+bend*t*t*t*t,
       y:start.y+rise*t*t*t*t,
-      dx:(lead+4*bend*t*t*t)/.32,
-      dy:4*rise*t*t*t/.32,
-      ddx:12*bend*t*t/(.32*.32),
-      ddy:12*rise*t*t/(.32*.32)
+      dx:(lead+4*bend*t*t*t)/.35,
+      dy:4*rise*t*t*t/.35,
+      ddx:12*bend*t*t/(.32*.35),
+      ddy:12*rise*t*t/(.32*.35)
     };
   };
   const buildRoute = () => {
@@ -114,8 +111,8 @@
     const h = hero.clientHeight;
     const mobile = w <= 760;
     const coordinates = mobile
-      ? [[.316,.63],[.177333,.63],[.02,.63],[-.3,.42]]
-      : [[.316,.28],[.177333,.28],[.02,.28],[-.3,-.10]];
+      ? [[.355,.63],[.177333,.63],[.02,.63],[-.3,.42]]
+      : [[.355,.28],[.177333,.28],[.02,.28],[-.3,-.10]];
     points = coordinates.map(([x,y]) => ({x:x*w,y:y*h}));
     route = [{t:0,length:0}];
     distance = 0;
@@ -151,13 +148,9 @@
     const bank = Math.atan(velocity*velocity*worldCurvature/9.81)*180/Math.PI;
     const x = pose.x-aircraft.offsetWidth/2;
     const y = pose.y-aircraft.offsetHeight/2;
-    aircraft.style.transform = `translate3d(${x}px,${y}px,0) rotateZ(${heading*180/Math.PI}deg) rotate3d(${Math.cos(noseAngle)},${Math.sin(noseAngle)},0,${bank}deg)`;
+    aircraft.style.transform = `translate3d(${x}px,${y}px,0) rotateZ(${heading*180/Math.PI}deg)`;
     aircraft.style.opacity = '1';
-    // One persistent fuselage and one wing surface: no frame/image swaps.
-    // The profile covers the wing root; the same wing gradually projects into view as it rolls.
-    sideView.style.opacity = '1';
-    bankView.style.opacity = '1';
-    bankView.style.transform = `translateY(-50%) scaleY(${Math.tan(Math.abs(bank)*Math.PI/180)}) rotate(38deg)`;
+    renderAircraft(bank,door.angle,aircraft.offsetWidth);
     const phase = progress<.23 ? 'approach' : progress<.466
       ? door.angle<70 ? 'opening' : 'release'
       : door.angle>=1 ? 'closing' : Math.abs(bank)>1 ? 'bank' : 'level-exit';

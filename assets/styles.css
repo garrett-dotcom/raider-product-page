@@ -38,3 +38,6 @@ header{position:fixed;background:#000000b8;backdrop-filter:blur(18px);-webkit-ba
 
 /* A single assembled aircraft throughout the pass; wing exposure follows roll continuously. */
 .bank-view{z-index:0;left:-12%;right:12%;pointer-events:none}.side-view{z-index:1}.payload-bay{z-index:2}
+
+/* Fixed 3D geometry; only camera projection changes during roll. */
+.aircraft-model{position:absolute;width:200%;height:auto;aspect-ratio:1;left:-50%;top:50%;transform:translateY(-50%);pointer-events:none}.aircraft>.payload-bay{left:48%;top:55%;height:2px;width:22%;perspective:none}
