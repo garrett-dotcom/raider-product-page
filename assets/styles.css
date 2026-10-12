@@ -17,3 +17,8 @@ header{position:fixed;background:#000000b8;backdrop-filter:blur(18px);-webkit-ba
 @media(max-width:760px){nav a:nth-child(2){display:none}.mission{padding-bottom:60px}.mission-intro{margin:35px 0}.approach,.questions{padding:55px 6% 60px}.approach-grid{grid-template-columns:1fr;gap:30px;padding-top:25px}.signal-art{max-width:350px}.approach-copy h2{font-size:44px}.approach-copy>p{font-size:15px}.faq-list summary{font-size:18px}.faq-list p{font-size:14px}.questions .section-top .eyebrow{font-size:9px}.contact{padding-top:60px;padding-bottom:60px}.capabilities p{min-height:0}.hero-copy .intro{max-width:340px}}
 
 .signal-core img{width:140px;height:auto;display:block}
+
+/* Small B-21 flyover: one fifth of the previous aircraft width. */
+.aircraft{width:min(13vw,208px);right:23%;top:41%;filter:drop-shadow(0 8px 7px #0008)}
+@media(min-width:761px) and (max-width:1050px){.aircraft{width:14.4vw;right:21%;top:44%}}
+@media(max-width:760px){.aircraft{width:23vw;right:24%;top:60%}}
