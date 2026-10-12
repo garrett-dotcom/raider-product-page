@@ -6,23 +6,24 @@
   const aircraft = document.querySelector('.aircraft');
   const sideView = document.querySelector('.side-view');
   const bankView = document.querySelector('.bank-view');
-  const bellyView = document.querySelector('.belly-view');
-  const departureView = document.querySelector('.departure-view');
   const bay = document.querySelector('.payload-bay');
   const farDoor = document.querySelector('.door-far');
   const nearDoor = document.querySelector('.door-near');
   const door = { angle:0, velocity:0 };
+  const phaseHistory = [];
+  let lastPhase = '';
   const operateDoors = (progress,dt) => {
     const target = progress>.23 && progress<.466 ? 85 : 0;
     const steps = Math.max(1,Math.ceil(dt/.008));
     const step = dt/steps;
     for(let i=0;i<steps;i++) {
       // Critically damped rotary actuator, with closed/open mechanical stops.
-      door.velocity += (36*(target-door.angle)-12*door.velocity)*step;
+      door.velocity += (16*(target-door.angle)-8*door.velocity)*step;
       door.angle = Math.max(0,Math.min(85,door.angle+door.velocity*step));
     }
-    farDoor.style.transform = `rotateX(${-door.angle}deg)`;
-    nearDoor.style.transform = `rotateX(${door.angle}deg)`;
+    if (target===0 && door.angle<1) { door.angle=0;door.velocity=0; }
+    farDoor.style.transform = `rotateX(${90+door.angle}deg)`;
+    nearDoor.style.transform = `rotateX(${90-door.angle}deg)`;
     bay.style.setProperty('--bay-open',String(door.angle/85));
   };
   const updateHeader = () => header?.classList.toggle('at-top', window.scrollY < 40);
@@ -58,7 +59,7 @@
     const velocity = distance/(duration/1000)*metersPerPixel;
     const opening = bay.getBoundingClientRect();
     const stage = hero.getBoundingClientRect();
-    cargo.push({element, x:opening.x+opening.width/2-stage.x, y:opening.bottom-stage.y+element.offsetHeight/2+2,
+    cargo.push({element, x:opening.x+opening.width/2-stage.x, y:Math.max(opening.bottom,farDoor.getBoundingClientRect().bottom,nearDoor.getBoundingClientRect().bottom)-stage.y+element.offsetHeight/2+2,
       vx:pose.dx/tangent*velocity, vy:pose.dy/tangent*velocity,
       angle: index%2 ? -12 : 18, spin: index%2 ? -82 : 56,
       mass:kind==='HDD'?.45:.09, area:kind==='HDD'?.012:.006, age:0});
@@ -89,17 +90,17 @@
   const noseAngle = Math.PI;
   const sample = progress => {
     const w = hero.clientWidth;
-    if (progress <= .64) return {x:w*(1.2-1.3*progress),y:points[0].y,dx:-1.3*w,dy:0,ddx:0,ddy:0};
-    const t = (progress-.64)/.36;
+    if (progress <= .68) return {x:w*(1.2-1.3*progress),y:points[0].y,dx:-1.3*w,dy:0,ddx:0,ddy:0};
+    const t = (progress-.68)/.32;
     const u = 1 - t;
     const [a, b, c, d] = points;
     return {
       x: u*u*u*a.x + 3*u*u*t*b.x + 3*u*t*t*c.x + t*t*t*d.x,
       y: u*u*u*a.y + 3*u*u*t*b.y + 3*u*t*t*c.y + t*t*t*d.y,
-      dx: (3*u*u*(b.x-a.x) + 6*u*t*(c.x-b.x) + 3*t*t*(d.x-c.x))/.36,
-      dy: (3*u*u*(b.y-a.y) + 6*u*t*(c.y-b.y) + 3*t*t*(d.y-c.y))/.36,
-      ddx: (6*u*(c.x-2*b.x+a.x) + 6*t*(d.x-2*c.x+b.x))/(.36*.36),
-      ddy: (6*u*(c.y-2*b.y+a.y) + 6*t*(d.y-2*c.y+b.y))/(.36*.36)
+      dx: (3*u*u*(b.x-a.x) + 6*u*t*(c.x-b.x) + 3*t*t*(d.x-c.x))/.32,
+      dy: (3*u*u*(b.y-a.y) + 6*u*t*(c.y-b.y) + 3*t*t*(d.y-c.y))/.32,
+      ddx: (6*u*(c.x-2*b.x+a.x) + 6*t*(d.x-2*c.x+b.x))/(.32*.32),
+      ddy: (6*u*(c.y-2*b.y+a.y) + 6*t*(d.y-2*c.y+b.y))/(.32*.32)
     };
   };
   const buildRoute = () => {
@@ -107,8 +108,8 @@
     const h = hero.clientHeight;
     const mobile = w <= 760;
     const coordinates = mobile
-      ? [[.368,.63],[.212,.63],[.05,.63],[-.3,.42]]
-      : [[.368,.28],[.212,.28],[.05,.28],[-.3,-.10]];
+      ? [[.316,.63],[.177333,.63],[.02,.63],[-.3,.42]]
+      : [[.316,.28],[.177333,.28],[.02,.28],[-.3,-.10]];
     points = coordinates.map(([x,y]) => ({x:x*w,y:y*h}));
     route = [{t:0,length:0}];
     distance = 0;
@@ -146,10 +147,22 @@
     const y = pose.y-aircraft.offsetHeight/2;
     aircraft.style.transform = `translate3d(${x}px,${y}px,0) rotateZ(${heading*180/Math.PI}deg) rotate3d(${Math.cos(noseAngle)},${Math.sin(noseAngle)},0,${bank}deg)`;
     aircraft.style.opacity = '1';
-    // Clean camera cuts keep one solid airframe visible; never morph two silhouettes.
-    const view = progress<.23 ? sideView : progress<.54 ? bellyView : progress<.78 ? bankView : departureView;
-    for (const candidate of [sideView,bellyView,bankView,departureView]) {
-      candidate.style.opacity = candidate===view ? '1' : '0';
+    // Keep a side-on camera throughout approach, opening, release and closure.
+    // The upper wing is exposed only once the closed aircraft actually banks.
+    const banking = Math.abs(bank)>10 && door.angle<1 && released.size===4;
+    sideView.style.opacity = banking ? '0' : '1';
+    bankView.style.opacity = banking ? '1' : '0';
+    // Side-camera wing projection: visible span follows sin(bank), not a full top-view jump.
+    bankView.style.transform = `translateY(-50%) scaleY(${Math.max(.001,Math.tan(Math.abs(bank)*Math.PI/180))}) rotate(38deg)`;
+    const phase = progress<.23 ? 'approach' : progress<.466
+      ? door.angle<70 ? 'opening' : 'release'
+      : door.angle>=1 ? 'closing' : Math.abs(bank)>1 ? 'bank' : 'level-exit';
+    aircraft.dataset.flightPhase = phase;
+    if (phase!==lastPhase) {
+      phaseHistory.push({phase,doorAngle:Math.round(door.angle*100)/100,bankAngle:Math.round(bank*100)/100,released:released.size});
+      if (phaseHistory.length>12) phaseHistory.shift();
+      aircraft.dataset.phaseHistory=JSON.stringify(phaseHistory);
+      lastPhase=phase;
     }
     return pose;
   };
