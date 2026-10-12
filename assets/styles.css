@@ -29,3 +29,6 @@ header{position:fixed;background:#000000b8;backdrop-filter:blur(18px);-webkit-ba
 .cargo{position:absolute;left:0;top:0;width:38px;height:54px;z-index:1;pointer-events:none;will-change:transform;filter:drop-shadow(0 3px 4px #0009)}.cargo svg{display:block;width:100%;height:100%}@media(max-width:760px){.cargo{width:28px;height:40px}}
 
 .cargo.ssd{width:31px;height:44px}@media(max-width:760px){.cargo.ssd{width:23px;height:33px}}
+
+/* Level side-on release, then expose the wing as the aircraft banks. */
+.aircraft{height:auto;aspect-ratio:3/2}.side-view,.bank-view{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%)}.side-view img{width:100%;height:auto}.bank-view{transform:translateY(-50%) rotate(38deg);opacity:0}.bank-view img{width:100%;height:auto}.cargo{width:25px;height:36px}.cargo.ssd{width:20px;height:29px}@media(max-width:760px){.aircraft{width:28vw;max-width:120px}.cargo{width:18px;height:26px}.cargo.ssd{width:15px;height:22px}}

@@ -4,6 +4,8 @@
   const button = document.querySelector('.motion-control');
   const hero = document.querySelector('.hero');
   const aircraft = document.querySelector('.aircraft');
+  const sideView = document.querySelector('.side-view');
+  const bankView = document.querySelector('.bank-view');
   const updateHeader = () => header?.classList.toggle('at-top', window.scrollY < 40);
   updateHeader();
   window.addEventListener('scroll', updateHeader, { passive: true });
@@ -13,14 +15,14 @@
   let visible = true;
   let frame = 0;
   let lastTime = null;
-  let elapsed = 7000;
+  let elapsed = 4000;
   let route = [];
   let distance = 0;
   let metersPerPixel = 1;
   let points = [];
   const duration = 24000;
   const cargo = [];
-  const releases = [.28,.35,.42,.49];
+  const releases = [.30,.35,.40,.45];
   let previousProgress = 0;
   const deviceArt = kind => kind === 'HDD'
     ? '<svg viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="40" height="58" rx="4" fill="#202932" stroke="#9bd9ff"/><circle cx="22" cy="24" r="14" fill="#101820" stroke="#849bab"/><circle cx="22" cy="24" r="4" stroke="#b9d4e4"/><path d="m34 39-12-15" stroke="#c5d9e6" stroke-width="3"/><path d="M10 56h24" stroke="#f7d64a" stroke-width="3"/><text x="22" y="49" fill="#b9d4e4" font-size="7" text-anchor="middle" font-family="monospace">HDD</text></svg>'
@@ -34,7 +36,7 @@
     hero.append(element);
     const tangent = Math.hypot(pose.dx,pose.dy);
     const velocity = distance/(duration/1000)*metersPerPixel;
-    cargo.push({element, x:pose.x, y:pose.y+aircraft.offsetHeight*.13,
+    cargo.push({element, x:pose.x, y:pose.y+aircraft.offsetWidth*.055+element.offsetHeight/2+3,
       vx:pose.dx/tangent*velocity, vy:pose.dy/tangent*velocity,
       angle: index%2 ? -12 : 18, spin: index%2 ? -82 : 56,
       mass:kind==='HDD'?.45:.09, area:kind==='HDD'?.012:.006, age:0});
@@ -62,17 +64,20 @@
       }
     }
   };
-  const noseAngle = 142 * Math.PI / 180;
-  const sample = t => {
+  const noseAngle = Math.PI;
+  const sample = progress => {
+    const w = hero.clientWidth;
+    if (progress <= .58) return {x:w*(1.2-1.3*progress),y:points[0].y,dx:-1.3*w,dy:0,ddx:0,ddy:0};
+    const t = (progress-.58)/.42;
     const u = 1 - t;
     const [a, b, c, d] = points;
     return {
       x: u*u*u*a.x + 3*u*u*t*b.x + 3*u*t*t*c.x + t*t*t*d.x,
       y: u*u*u*a.y + 3*u*u*t*b.y + 3*u*t*t*c.y + t*t*t*d.y,
-      dx: 3*u*u*(b.x-a.x) + 6*u*t*(c.x-b.x) + 3*t*t*(d.x-c.x),
-      dy: 3*u*u*(b.y-a.y) + 6*u*t*(c.y-b.y) + 3*t*t*(d.y-c.y),
-      ddx: 6*u*(c.x-2*b.x+a.x) + 6*t*(d.x-2*c.x+b.x),
-      ddy: 6*u*(c.y-2*b.y+a.y) + 6*t*(d.y-2*c.y+b.y)
+      dx: (3*u*u*(b.x-a.x) + 6*u*t*(c.x-b.x) + 3*t*t*(d.x-c.x))/.42,
+      dy: (3*u*u*(b.y-a.y) + 6*u*t*(c.y-b.y) + 3*t*t*(d.y-c.y))/.42,
+      ddx: (6*u*(c.x-2*b.x+a.x) + 6*t*(d.x-2*c.x+b.x))/(.42*.42),
+      ddy: (6*u*(c.y-2*b.y+a.y) + 6*t*(d.y-2*c.y+b.y))/(.42*.42)
     };
   };
   const buildRoute = () => {
@@ -80,8 +85,8 @@
     const h = hero.clientHeight;
     const mobile = w <= 760;
     const coordinates = mobile
-      ? [[1.25,.20],[.55,.12],[.95,.26],[-.28,.21]]
-      : [[1.18,.015],[.98,.56],[.42,.015],[-.15,.65]];
+      ? [[.446,.63],[.264,.63],[.05,.63],[-.3,.42]]
+      : [[.446,.28],[.264,.28],[.05,.28],[-.3,-.10]];
     points = coordinates.map(([x,y]) => ({x:x*w,y:y*h}));
     route = [{t:0,length:0}];
     distance = 0;
@@ -119,6 +124,9 @@
     const y = pose.y-aircraft.offsetHeight/2;
     aircraft.style.transform = `translate3d(${x}px,${y}px,0) rotateZ(${heading*180/Math.PI}deg) rotate3d(${Math.cos(noseAngle)},${Math.sin(noseAngle)},0,${bank}deg)`;
     aircraft.style.opacity = '1';
+    const wingVisibility = Math.min(1,Math.abs(Math.sin(bank*Math.PI/180))/Math.sin(28*Math.PI/180));
+    sideView.style.opacity = String(1-wingVisibility);
+    bankView.style.opacity = String(wingVisibility);
     return pose;
   };
   const tick = time => {
