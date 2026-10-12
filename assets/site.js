@@ -102,8 +102,8 @@
       y:start.y+rise*t*t*t*t,
       dx:(lead+4*bend*t*t*t)/.35,
       dy:4*rise*t*t*t/.35,
-      ddx:12*bend*t*t/(.32*.35),
-      ddy:12*rise*t*t/(.32*.35)
+      ddx:12*bend*t*t/(.35*.35),
+      ddy:12*rise*t*t/(.35*.35)
     };
   };
   const buildRoute = () => {
