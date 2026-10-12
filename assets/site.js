@@ -18,7 +18,8 @@
     const step = dt/steps;
     for(let i=0;i<steps;i++) {
       // Critically damped rotary actuator, with closed/open mechanical stops.
-      door.velocity += (16*(target-door.angle)-8*door.velocity)*step;
+      const frequency = target===0 ? 6 : 4;
+      door.velocity += (frequency*frequency*(target-door.angle)-2*frequency*door.velocity)*step;
       door.angle = Math.max(0,Math.min(85,door.angle+door.velocity*step));
     }
     if (target===0 && door.angle<1) { door.angle=0;door.velocity=0; }
