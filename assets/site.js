@@ -230,6 +230,15 @@
     else start();
   };
   buildRoute();
+  // Begin one short lead-in beyond the right edge, rather than traversing
+  // the unused off-screen part of the route before visitors see the aircraft.
+  const entryX = hero.clientWidth + aircraft.offsetWidth/2 + 6;
+  const entryT = Math.max(0,(1.2*hero.clientWidth-entryX)/(1.3*hero.clientWidth));
+  const entryIndex = Math.max(1,route.findIndex(point => point.t >= entryT));
+  const entryBefore = route[entryIndex-1];
+  const entryAfter = route[entryIndex];
+  const entryFraction = (entryT-entryBefore.t)/(entryAfter.t-entryBefore.t);
+  elapsed = duration*(entryBefore.length+(entryAfter.length-entryBefore.length)*entryFraction)/distance;
   paint((elapsed%duration)/duration);
   updateMotion();
   // Start the flight only after both views are available, so a slow image load
