@@ -8,10 +8,12 @@
   const bay = document.querySelector('.payload-bay');
 
   const door = { angle:0, velocity:0 };
+  const mobileFlight = () => hero.clientWidth <= 760;
+  const releaseEnd = () => mobileFlight() ? .39 : .466;
   const phaseHistory = [];
   let lastPhase = '';
   const operateDoors = (progress,dt) => {
-    const target = progress>.23 && progress<.466 ? 85 : 0;
+    const target = progress>.23 && progress<releaseEnd() ? 85 : 0;
     const steps = Math.max(1,Math.ceil(dt/.008));
     const step = dt/steps;
     for(let i=0;i<steps;i++) {
@@ -181,7 +183,7 @@
     aircraft.style.transform = `translate3d(${x}px,${y}px,0) rotateZ(${heading*180/Math.PI}deg)`;
     aircraft.style.opacity = '1';
     renderAircraft(bank,door.angle,aircraft.offsetWidth);
-    const phase = progress<.23 ? 'approach' : progress<.466
+    const phase = progress<.23 ? 'approach' : progress<releaseEnd()
       ? door.angle<70 ? 'opening' : 'release'
       : door.angle>=1 ? 'closing' : Math.abs(bank)>1 ? 'bank' : 'level-exit';
     aircraft.dataset.flightPhase = phase;
@@ -207,8 +209,9 @@
     }
     operateDoors(progress,dt);
     const pose = paint(progress);
-    releases.forEach((release,index) => {
-      if (!released.has(index) && progress>=release && progress<.466 && door.angle>=70) {
+    const releaseTimes = mobileFlight() ? [.305,.324,.343,.362] : releases;
+    releaseTimes.forEach((release,index) => {
+      if (!released.has(index) && progress>=release && progress<releaseEnd() && door.angle>=70) {
         dropDevice(pose,index);released.add(index);
       }
     });
