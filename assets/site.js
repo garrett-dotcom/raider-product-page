@@ -141,9 +141,9 @@
     const h = hero.clientHeight;
     const mobile = w <= 760;
     const coordinates = mobile
-      // Mobile follows the same vertical turn distance as desktop, shifted below
-      // the primary CTA so the side-profile release never crosses the copy.
-      ? [[.355,.68],[.177333,.68],[.02,.68],[-.3,.30]]
+      // Keep the mobile exit shallow: its tall viewport otherwise turns the
+      // same relative rise into a steep climb across a narrow flight path.
+      ? [[.355,.68],[.177333,.68],[.02,.68],[-.45,.58]]
       : [[.355,.28],[.177333,.28],[.02,.28],[-.3,-.10]];
     points = coordinates.map(([x,y]) => ({x:x*w,y:y*h}));
     route = [{t:0,length:0}];
@@ -159,9 +159,9 @@
       previous = next;
     }
     // Calibrate the scene projection for a level coordinated turn.
-    // tan(bank) = speed² * curvature / gravity; maximum bank is 28 degrees.
+    // tan(bank) = speed² * curvature / gravity; use a gentler mobile bank.
     const pixelsPerSecond = distance/(duration/1000);
-    metersPerPixel = 9.81*Math.tan(28*Math.PI/180)/(pixelsPerSecond*pixelsPerSecond*maximumCurvature);
+    metersPerPixel = 9.81*Math.tan((mobile ? 16 : 28)*Math.PI/180)/(pixelsPerSecond*pixelsPerSecond*maximumCurvature);
   };
   const paint = progress => {
     const target = progress * distance;
