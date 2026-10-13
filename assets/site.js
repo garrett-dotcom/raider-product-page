@@ -33,7 +33,8 @@
   let visible = true;
   let frame = 0;
   let lastTime = null;
-  let elapsed = 4000;
+  let elapsed = 0;
+  let artworkReady = false;
   let route = [];
   let distance = 0;
   let metersPerPixel = 1;
@@ -215,7 +216,7 @@
     stepCargo(dt);
     frame=requestAnimationFrame(tick);
   };
-  const start = () => { if (!paused && visible && !document.hidden && !frame) frame=requestAnimationFrame(tick); };
+  const start = () => { if (artworkReady && !paused && visible && !document.hidden && !frame) frame=requestAnimationFrame(tick); };
   const updateMotion = () => {
     root.classList.toggle('motion-paused',paused);
     root.classList.toggle('motion-enabled',!paused);
@@ -228,6 +229,16 @@
   buildRoute();
   paint((elapsed%duration)/duration);
   updateMotion();
+  // Start the flight only after both views are available, so a slow image load
+  // cannot reveal the aircraft partway through its approach.
+  Promise.all(['assets/b21-side.png','assets/b21-overhead-v3.png'].map(src =>
+    new Promise(resolve => {
+      const image = new Image();
+      image.onload = resolve;
+      image.onerror = resolve;
+      image.src = src;
+    })
+  )).then(() => { artworkReady = true; start(); });
   button.addEventListener('click',() => { paused=!paused;updateMotion(); });
   preference.addEventListener('change',event => { paused=event.matches;updateMotion(); });
   new ResizeObserver(() => { buildRoute();paint((elapsed%duration)/duration); }).observe(hero);
