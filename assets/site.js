@@ -41,7 +41,7 @@
   let distance = 0;
   let metersPerPixel = 1;
   let points = [];
-  const duration = 24000;
+  let duration = hero.clientWidth <= 760 ? 16000 : 24000;
   const cargo = [];
   const releases = [.305,.352,.399,.446];
   let previousProgress = 0;
@@ -140,6 +140,10 @@
     const w = hero.clientWidth;
     const h = hero.clientHeight;
     const mobile = w <= 760;
+    const nextDuration = mobile ? 16000 : 24000;
+    // Preserve flight progress when crossing the responsive breakpoint.
+    elapsed *= nextDuration/duration;
+    duration = nextDuration;
     const coordinates = mobile
       // Keep the mobile exit shallow: its tall viewport otherwise turns the
       // same relative rise into a steep climb across a narrow flight path.
