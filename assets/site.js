@@ -40,27 +40,47 @@
   let points = [];
   const duration = 24000;
   const cargo = [];
-  const releases = [.30,.35,.40,.45];
+  const releases = [.305,.352,.399,.446];
   let previousProgress = 0;
   const released = new Set();
   const deviceArt = kind => kind === 'HDD'
-    ? '<svg viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="40" height="58" rx="4" fill="#202932" stroke="#9bd9ff"/><circle cx="22" cy="24" r="14" fill="#101820" stroke="#849bab"/><circle cx="22" cy="24" r="4" stroke="#b9d4e4"/><path d="m34 39-12-15" stroke="#c5d9e6" stroke-width="3"/><path d="M10 56h24" stroke="#f7d64a" stroke-width="3"/><text x="22" y="49" fill="#b9d4e4" font-size="7" text-anchor="middle" font-family="monospace">HDD</text></svg>'
-    : '<svg viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="40" height="58" rx="4" fill="#12191d" stroke="#72db45"/><rect x="8" y="12" width="28" height="31" rx="2" fill="#222d30" stroke="#687e82"/><text x="22" y="31" fill="#bce4a7" font-size="9" text-anchor="middle" font-family="monospace">SSD</text><path d="M10 56h24" stroke="#f7d64a" stroke-width="3"/></svg>';
+    ? `<svg viewBox="0 0 72 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="hddCase" x1="8" y1="5" x2="64" y2="91" gradientUnits="userSpaceOnUse"><stop stop-color="#d7e0e5"/><stop offset=".45" stop-color="#707d86"/><stop offset="1" stop-color="#2b353c"/></linearGradient><radialGradient id="platter"><stop stop-color="#d9f2ff"/><stop offset=".2" stop-color="#718c9e"/><stop offset=".75" stop-color="#17242d"/><stop offset="1" stop-color="#05090c"/></radialGradient></defs>
+        <rect x="2.5" y="2.5" width="67" height="91" rx="7" fill="#121a20" stroke="#9bd9ff" stroke-width="2"/><rect x="7" y="7" width="58" height="76" rx="5" fill="url(#hddCase)" stroke="#e3edf2" stroke-opacity=".55"/>
+        <circle cx="34" cy="39" r="23" fill="url(#platter)" stroke="#c7dce8" stroke-width="1.4"/><circle cx="34" cy="39" r="5.8" fill="#111a20" stroke="#e8f5fb" stroke-width="2"/><circle cx="34" cy="39" r="1.7" fill="#9bd9ff"/>
+        <path d="M58 68 39 43" stroke="#182329" stroke-width="6" stroke-linecap="round"/><path d="M58 68 39 43" stroke="#d6e4eb" stroke-width="2.6" stroke-linecap="round"/><circle cx="58" cy="68" r="6" fill="#28353d" stroke="#c6d9e3"/><path d="m38 43-5-2 4-5" fill="#eef8fb" stroke="#43545f"/>
+        <g fill="#0a1014" stroke="#d5e3e9" stroke-width=".8"><circle cx="12" cy="12" r="2"/><circle cx="60" cy="12" r="2"/><circle cx="12" cy="77" r="2"/><circle cx="60" cy="77" r="2"/></g>
+        <rect x="9" y="85" width="37" height="6" rx="1" fill="#161d21" stroke="#f7d64a"/><path d="M49 85h13v6H49" fill="#11181d" stroke="#9bd9ff"/><path d="M12 86v4m4-4v4m4-4v4m4-4v4m4-4v4m4-4v4m4-4v4m4-4v4" stroke="#f7d64a"/>
+        <rect x="12" y="53" width="21" height="11" rx="1.5" fill="#e8eef0" fill-opacity=".88"/><text x="22.5" y="58.2" fill="#1b2931" font-size="4.5" text-anchor="middle" font-family="monospace" font-weight="700">RAIDER HDD</text><path d="M15 61h15" stroke="#52636d" stroke-width=".8"/>
+      </svg>`
+    : `<svg viewBox="0 0 72 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="ssdCase" x1="5" y1="4" x2="66" y2="92" gradientUnits="userSpaceOnUse"><stop stop-color="#303c43"/><stop offset=".55" stop-color="#121a1f"/><stop offset="1" stop-color="#05090c"/></linearGradient></defs>
+        <rect x="4" y="2.5" width="64" height="91" rx="6" fill="url(#ssdCase)" stroke="#72db45" stroke-width="2"/><rect x="9" y="9" width="54" height="69" rx="3" fill="#0d241d" stroke="#6ba58c"/><path d="M13 14h46v59H13z" fill="#10382a" stroke="#7bbda0" stroke-opacity=".65"/>
+        <g fill="#172126" stroke="#8ca0a8" stroke-width=".7"><rect x="17" y="19" width="15" height="12" rx="1"/><rect x="40" y="19" width="15" height="12" rx="1"/><rect x="17" y="38" width="15" height="12" rx="1"/><rect x="40" y="38" width="15" height="12" rx="1"/><rect x="25" y="57" width="22" height="10" rx="1"/></g>
+        <g fill="#a6d68d"><circle cx="15" cy="16" r="1.2"/><circle cx="57" cy="16" r="1.2"/><circle cx="15" cy="70" r="1.2"/><circle cx="57" cy="70" r="1.2"/></g><path d="M33 25h6m-6 19h6m-11 8v4m16-4v4M20 34h32" stroke="#72db45" opacity=".8"/>
+        <rect x="18" y="29" width="36" height="12" rx="2" fill="#dce9e2"/><text x="36" y="34.5" fill="#173224" font-size="5" text-anchor="middle" font-family="monospace" font-weight="700">RAIDER SSD</text><text x="36" y="38.7" fill="#375b49" font-size="3.8" text-anchor="middle" font-family="monospace">SOLID STATE</text>
+        <rect x="10" y="83" width="40" height="8" rx="1" fill="#171e21" stroke="#f7d64a"/><path d="M53 83h10v8H53" fill="#0f1518" stroke="#9bd9ff"/><path d="M13 84v6m4-6v6m4-6v6m4-6v6m4-6v6m4-6v6m4-6v6m4-6v6m4-6v6" stroke="#f7d64a" stroke-width="1.2"/>
+      </svg>`;
   const dropDevice = (pose, index) => {
     const kind = index % 2 === 0 ? 'HDD' : 'SSD';
     const element = document.createElement('div');
     element.className = 'cargo '+kind.toLowerCase();
     element.setAttribute('aria-hidden','true');
+    element.dataset.kind = kind;
     element.innerHTML = deviceArt(kind);
     hero.append(element);
     const tangent = Math.hypot(pose.dx,pose.dy);
     const velocity = distance/(duration/1000)*metersPerPixel;
     const opening = bay.getBoundingClientRect();
     const stage = hero.getBoundingClientRect();
-    cargo.push({element, x:opening.x+opening.width/2-stage.x, y:opening.bottom+aircraft.offsetWidth*.08-stage.y+element.offsetHeight/2+2,
-      vx:pose.dx/tangent*velocity, vy:pose.dy/tangent*velocity,
+    const rackSlots=[-.33,-.11,.11,.33];
+    const x=opening.x+opening.width*(.5+rackSlots[index])-stage.x;
+    const y=opening.y+opening.height/2-stage.y;
+    cargo.push({element, x, y, launchX:x, launchY:y,
+      vx:pose.dx/tangent*velocity, vy:pose.dy/tangent*velocity+(kind==='HDD'?2.15:1.55),
       angle: index%2 ? -12 : 18, spin: index%2 ? -82 : 56,
-      mass:kind==='HDD'?.45:.09, area:kind==='HDD'?.012:.006, age:0});
+      mass:kind==='HDD'?.45:.09, area:kind==='HDD'?.012:.006, age:0,
+      rail:Math.max(12,aircraft.offsetWidth*.13)});
   };
   const stepCargo = dt => {
     // Quadratic aerodynamic drag plus gravity; released objects inherit flight velocity.
@@ -79,7 +99,14 @@
         item.spin *= Math.exp(-.12*step);
       }
       item.age += dt;
-      item.element.style.transform=`translate3d(${item.x-item.element.offsetWidth/2}px,${item.y-item.element.offsetHeight/2}px,0) rotate(${item.angle}deg)`;
+      // A short guided rack release begins inside the bay. Once clear, inherited
+      // aircraft velocity, gravity, and aerodynamic drag own the trajectory.
+      const u=Math.min(1,item.age/.28);
+      const emergence=u*u*(3-2*u);
+      const scale=.56+.44*emergence;
+      const drawY=item.y+item.rail*emergence;
+      item.element.style.opacity=String(Math.min(1,item.age/.07));
+      item.element.style.transform=`translate3d(${item.x-item.element.offsetWidth/2}px,${drawY-item.element.offsetHeight/2}px,0) rotate(${item.angle}deg) scale(${scale})`;
       if (item.y>hero.clientHeight+100 || item.x < -150 || item.x>hero.clientWidth+150 || item.age>30) {
         item.element.remove();cargo.splice(i,1);
       }
@@ -111,7 +138,9 @@
     const h = hero.clientHeight;
     const mobile = w <= 760;
     const coordinates = mobile
-      ? [[.355,.63],[.177333,.63],[.02,.63],[-.3,.42]]
+      // Mobile follows the same vertical turn distance as desktop, shifted below
+      // the primary CTA so the side-profile release never crosses the copy.
+      ? [[.355,.68],[.177333,.68],[.02,.68],[-.3,.30]]
       : [[.355,.28],[.177333,.28],[.02,.28],[-.3,-.10]];
     points = coordinates.map(([x,y]) => ({x:x*w,y:y*h}));
     route = [{t:0,length:0}];
@@ -169,7 +198,12 @@
     elapsed += dt*1000;
     lastTime=time;
     const progress = (elapsed%duration)/duration;
-    if (progress < previousProgress) { previousProgress = 0;released.clear(); }
+    if (progress < previousProgress) {
+      previousProgress = 0;
+      released.clear();
+      cargo.forEach(item => item.element.remove());
+      cargo.length = 0;
+    }
     operateDoors(progress,dt);
     const pose = paint(progress);
     releases.forEach((release,index) => {

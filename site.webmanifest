@@ -1,0 +1,17 @@
+{
+  "name": "Raider Dynamics",
+  "short_name": "RAIDER",
+  "description": "Awareness, efficiency, and control for your Mac.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "assets/raider-app-logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
