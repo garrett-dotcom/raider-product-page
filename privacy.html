@@ -1,1 +1,150 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Privacy — Raider Dynamics</title><link rel="icon" href="assets/raider-app-logo.png"><link rel="stylesheet" href="assets/styles.css?v=stealth-2"></head><body><header><a class="brand" href="index.html"><img src="assets/raider-wordmark.svg" width="150" height="29" alt="RAIDER"><span>DYNAMICS</span></a><nav><a href="index.html">Back to base ↗</a></nav></header><main class="legal"><p class="eyebrow">RAIDER DYNAMICS / WEBSITE PRIVACY</p><h1>A quiet presence.</h1><p>This landing page has no analytics scripts, advertising trackers, account registration, or mailing-list form. It loads its visual assets locally and does not request app or drive information.</p><p>Contact links open your email application. Anything you choose to send is handled through email. Please leave passwords, credentials, private file paths, and sensitive diagnostics out of your message.</p><p>This website is hosted by GitHub Pages. GitHub may process ordinary request information, such as IP addresses and access logs, under its own privacy statement. The app’s separate privacy policy will be provided when launch arrangements are finalized.</p><p>Questions: <a href="mailto:gdizz00@mac.com">gdizz00@mac.com</a>.</p></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Privacy Policy for the RAIDER Mac and iPhone/iPad software and the Raider Dynamics website.">
+  <title>Privacy Policy — Raider Dynamics</title>
+  <link rel="canonical" href="https://raiderdynamics.com/privacy.html">
+  <link rel="icon" href="assets/raider-app-logo.png">
+  <link rel="stylesheet" href="assets/styles.css?v=privacy-1">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to policy</a>
+  <header>
+    <a class="brand" href="index.html" aria-label="Raider Dynamics home">
+      <img src="assets/raider-wordmark.svg" width="150" height="29" alt="RAIDER">
+      <span>DYNAMICS</span>
+    </a>
+    <nav aria-label="Privacy navigation">
+      <a href="#data">Your data</a>
+      <a href="#choices">Your choices</a>
+      <a href="index.html">Back to base <span>↗</span></a>
+    </nav>
+  </header>
+
+  <main class="legal privacy-policy" id="main">
+    <div class="legal-hero">
+      <p class="eyebrow"><span class="status-dot"></span> RAIDER DYNAMICS / PRIVACY POLICY</p>
+      <h1>Local by<br><em>design.</em></h1>
+      <p class="legal-lead">RAIDER is built to understand and coordinate your own setup. Its working data stays on your devices unless a feature you choose needs to contact a service you control or a clearly identified public provider.</p>
+      <div class="policy-meta">
+        <span>Effective October 13, 2026</span>
+        <span>Mac + iPhone/iPad + website</span>
+      </div>
+    </div>
+
+    <section class="policy-summary" aria-label="Privacy summary">
+      <article class="blue"><span class="number">01</span><h2>No hidden telemetry.</h2><p>RAIDER does not include advertising trackers, developer analytics, or automatic diagnostic uploads. Any future reliability reporting will require a clear choice.</p></article>
+      <article class="green"><span class="number">02</span><h2>Your system, your data.</h2><p>Drive, activity, protection, environmental, and controller records are stored locally for the product to work.</p></article>
+      <article class="yellow"><span class="number">03</span><h2>Connections are purposeful.</h2><p>Optional network features connect to your own equipment, your own services, or the National Weather Service.</p></article>
+    </section>
+
+    <section class="policy-section" id="scope">
+      <p class="eyebrow">01 / SCOPE</p>
+      <h2>What this policy covers.</h2>
+      <p>This policy explains how Raider Dynamics handles information through the RAIDER app for Mac, the RAIDER companion app for iPhone and iPad, and this website. RAIDER is currently in development. Available features, supported hardware, and operating-system requirements may change before release; material privacy changes will be reflected here.</p>
+      <p>RAIDER is designed for supported Mac storage and environmental-control setups. Some monitoring, protection, controller, and companion functions require compatible hardware, a supported Mac, permission to access selected resources, and a local network connection.</p>
+    </section>
+
+    <section class="policy-section" id="data">
+      <p class="eyebrow">02 / INFORMATION ON YOUR DEVICES</p>
+      <h2>What RAIDER handles locally.</h2>
+      <div class="policy-grid">
+        <article><h3>System and device state</h3><p>RAIDER may read and store information needed to present drive identity, capacity, connection state, health and SMART status, activity, temperature, protection plans, copy or verification status, and related event history. It may also use file timestamps, available space, and system uptime for the functions you request.</p></article>
+        <article><h3>Files you authorize</h3><p>When you choose a drive or folder, macOS can give RAIDER a security-scoped bookmark so access can continue across launches. RAIDER uses that permission only for the source, destination, inspection, protection, or recovery work you configure.</p></article>
+        <article><h3>Credentials and pairing</h3><p>Release builds store supported Plex tokens, controller credentials, and approved companion-device credentials in Apple Keychain. Companion credentials stay on the device and are not synchronized through iCloud by RAIDER. Wi-Fi details used during controller commissioning are sent to the controller you are setting up.</p></article>
+        <article><h3>History and preferences</h3><p>RAIDER stores settings, alerts, activity and protection records, bounded temperature and controller histories, and paired-device state locally. These records let the apps show prior events without treating old information as current status.</p></article>
+      </div>
+    </section>
+
+    <section class="policy-section" id="network">
+      <p class="eyebrow">03 / NETWORK CONNECTIONS</p>
+      <h2>When information moves.</h2>
+      <div class="flow-list">
+        <article><span class="flow-marker blue">LOCAL</span><div><h3>Mac, companion, and controller</h3><p>With your approval, the iPhone or iPad companion pairs with RAIDER on your Mac and exchanges status and authorized commands over your local network. The Mac must approve pairing. RAIDER also contacts a paired controller on the local network for authenticated status and control. Local controller transport may use authenticated HTTP and should be used only on a trusted network.</p></div></article>
+        <article><span class="flow-marker green">OPTIONAL</span><div><h3>Your Plex service</h3><p>If you enable Plex awareness and provide a token, the Mac app queries your Plex Media Server for active-session details and media paths so configured work can defer to playback. The current integration targets the Plex service you run on the Mac and does not send that token to Raider Dynamics.</p></div></article>
+        <article><span class="flow-marker yellow">PUBLIC</span><div><h3>National Weather Service</h3><p>If you enable environmental context, RAIDER sends the state, county, or forecast-zone code you selected to <span class="nowrap">api.weather.gov</span> over HTTPS and receives active public alerts. RAIDER does not send precise coordinates, a street address, credentials, customer names, drive data, or file information in that request.</p></div></article>
+        <article><span class="flow-marker blue">SYSTEM</span><div><h3>Notifications</h3><p>If you allow notifications, RAIDER asks the operating system to display the alerts you selected. RAIDER does not use those notifications as an advertising or tracking channel.</p></div></article>
+      </div>
+    </section>
+
+    <section class="policy-section" id="sharing">
+      <p class="eyebrow">04 / COLLECTION AND SHARING</p>
+      <h2>What Raider Dynamics receives.</h2>
+      <p>Current RAIDER builds do not automatically send Raider Dynamics your drive information, file names or contents, paths, serial numbers, temperature history, Plex activity, controller readings, credentials, contacts, photos, precise location, usage analytics, or diagnostics. We do not sell personal information or use it for targeted advertising.</p>
+      <p>If you contact support, we receive the information you choose to include in your email or attachment. Diagnostic exports are shared only when you deliberately export and send them. Before sending anything, review it and remove passwords, tokens, private paths, drive serial numbers, media titles, and other details you do not want to disclose.</p>
+      <p>We may keep support correspondence and voluntarily supplied diagnostics while they are needed to respond, investigate the issue, maintain an appropriate support record, or meet legal obligations. You may ask us to delete your support material; we will honor the request unless retention is required for security, legal, or recordkeeping reasons.</p>
+    </section>
+
+    <section class="policy-section" id="reliability">
+      <p class="eyebrow">05 / PLANNED RELIABILITY REPORTING</p>
+      <h2>Useful patterns, without the private details.</h2>
+      <p>The reliability program is not active in current RAIDER builds. Before it is enabled, RAIDER will present the choice clearly and update this policy and the applicable store disclosures.</p>
+      <div class="collection-boundary">
+        <article class="collection-excluded">
+          <span class="flow-marker yellow">FIRST / WE DO NOT COLLECT</span>
+          <h3>Customer identity, content, or secrets.</h3>
+          <p>A reliability report would not include a drive serial number, persistent device identifier, Mac serial number, hostname, volume or device name, file name or contents, file path, media title, raw diagnostic log, credential, account information, contact information, or precise location. RAIDER would not add the customer’s IP address to the report, although ordinary network infrastructure may process a source address to deliver the request.</p>
+        </article>
+        <article class="collection-included">
+          <span class="flow-marker green">SECOND / WITH OPT-IN, WE COLLECT</span>
+          <h3>Product and reliability facts.</h3>
+          <p>Raider Dynamics may collect the non-customer information described below to learn which drive and enclosure combinations perform well over time, under what conditions, and which combinations report health warnings or failures.</p>
+        </article>
+      </div>
+      <div class="policy-grid reliability-grid">
+        <article><h3>Product configuration</h3><p>A report could include the drive manufacturer, model or product family, HDD or SSD type, nominal capacity, firmware version, connection method, and enclosure or bridge manufacturer and model when available.</p></article>
+        <article><h3>Compatibility context</h3><p>To distinguish a drive problem from a compatibility problem, a report could include the Mac model family, macOS version, RAIDER version, driver version, filesystem type, and negotiated connection class or speed.</p></article>
+        <article><h3>Operating conditions</h3><p>Useful measurements could include coarse ranges for power-on time, data written, activity, temperature, connection events, and cooling state. RAIDER would favor ranges and normalized values over exact histories when the added precision is not needed.</p></article>
+        <article><h3>Health and outcome</h3><p>A report could include standardized health assessments, relevant SMART warning categories, an unexpected-disconnect or verification outcome, and whether the device remained healthy, developed a warning, was replaced, or failed. Customer files and raw diagnostic logs would not be included.</p></article>
+        <article><h3>Aggregated guidance</h3><p>Reliability information would be combined across reports for product support, compatibility work, and guidance about drive performance. Small groups would not be presented as conclusive recommendations. The information would not be sold or used for advertising, cross-app tracking, or a customer profile.</p></article>
+        <article><h3>No silent enrollment</h3><p>Participation would be optional and controlled in RAIDER. The app would show the exact categories before the first report, and turning participation off would stop future reports.</p></article>
+        <article><h3>Retention and deletion</h3><p>Before collection begins, Raider Dynamics will publish the reporting schedule, retention period, service providers, security controls, and a practical deletion method. The program will not begin until those details and the applicable store declarations are complete.</p></article>
+      </div>
+    </section>
+
+    <section class="policy-section" id="retention">
+      <p class="eyebrow">06 / RETENTION AND SECURITY</p>
+      <h2>Stored with limits.</h2>
+      <p>The Mac app keeps its working state in your user account with user-only file permissions. Activity history is capped and pruned using the retention period you configure, and technical histories use bounded limits. Some records can remain until you clear them, revoke access, forget a pairing, reset the app, or remove the related local data.</p>
+      <p>Keychain items may remain after an app is removed. Use RAIDER’s forget or revoke controls where available and Apple’s system tools to remove remaining Keychain items. Forgetting a Mac in the companion app removes its saved pairing from that device. Removing a saved access grant prevents new work from using it, although an operation already in progress may finish or stop through its normal safety flow.</p>
+      <p>RAIDER uses platform security controls, authenticated pairing, access limits, and bounded input handling intended to protect local data. No system can guarantee absolute security. Keep macOS and iOS or iPadOS current, protect your device accounts, and use RAIDER controller features only on a trusted network.</p>
+    </section>
+
+    <section class="policy-section" id="choices">
+      <p class="eyebrow">07 / YOUR CHOICES</p>
+      <h2>You decide what to enable.</h2>
+      <ul class="choice-list">
+        <li><strong>File and drive access.</strong> Choose which drives or folders RAIDER may use and whether access is read-only or read and write.</li>
+        <li><strong>Local network.</strong> Allow or deny discovery and communication with approved companion devices and controllers in system privacy settings.</li>
+        <li><strong>Notifications.</strong> Choose RAIDER alert categories in the app and change notification permission in system settings.</li>
+        <li><strong>Plex and environmental context.</strong> Leave either feature off, or remove its configuration when you no longer want it used.</li>
+        <li><strong>Pairings.</strong> Forget a Mac from the companion app or revoke a companion from the Mac app.</li>
+        <li><strong>Support material.</strong> Decide what you send and request deletion of material already provided.</li>
+      </ul>
+    </section>
+
+    <section class="policy-section" id="website">
+      <p class="eyebrow">08 / THIS WEBSITE</p>
+      <h2>A minimal public footprint.</h2>
+      <p>This website does not include advertising trackers, developer analytics, account registration, or a mailing-list form. Its visual assets load from this site. Contact links open your email application.</p>
+      <p>The site is hosted by GitHub Pages. GitHub may process ordinary hosting information such as IP addresses, browser details, and access logs under the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub General Privacy Statement</a>.</p>
+    </section>
+
+    <section class="policy-section" id="changes">
+      <p class="eyebrow">09 / CHANGES AND CONTACT</p>
+      <h2>Questions are welcome.</h2>
+      <p>We may update this policy as RAIDER develops. The effective date at the top will change when a revision is published. If a change materially affects how the apps handle information, we will provide notice appropriate to the release.</p>
+      <p>For privacy questions, support requests, or deletion requests, email <a href="mailto:gdizz00@mac.com?subject=RAIDER%20Privacy">gdizz00@mac.com</a>. Please do not include passwords, access tokens, or other secrets.</p>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand" href="index.html" aria-label="Raider Dynamics home"><img src="assets/raider-wordmark.svg" width="112" height="22" alt="RAIDER"><span>DYNAMICS</span></a>
+    <span>© 2026 RAIDER DYNAMICS. ALL RIGHTS RESERVED.</span>
+    <a href="#main">Back to top ↑</a>
+  </footer>
+</body>
+</html>
