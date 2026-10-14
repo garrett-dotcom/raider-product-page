@@ -45,3 +45,10 @@ header{position:fixed;background:#000000b8;backdrop-filter:blur(18px);-webkit-ba
 
 /* Fixed 3D geometry; only camera projection changes during roll. */
 .aircraft-model{position:absolute;width:200%;height:auto;aspect-ratio:1;left:-50%;top:50%;transform:translateY(-50%);pointer-events:none}.aircraft>.payload-bay{left:48%;top:55%;height:2px;width:22%;perspective:none}
+
+/* Noctis orbital composition adapted as rigid, nose-led B21 flight paths. */
+.signal-art{max-width:560px;aspect-ratio:1;background:none;mask-image:none;-webkit-mask-image:none;overflow:hidden}
+.signal-art::before,.signal-art::after{display:none}
+.approach-flight{display:block;width:100%;height:auto;overflow:visible}
+.approach-airframe{will-change:transform}
+@media(max-width:760px){.signal-art{max-width:390px;margin:0 auto}.approach-grid{gap:22px}}
