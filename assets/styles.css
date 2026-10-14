@@ -60,3 +60,6 @@ header{position:fixed;background:#000000b8;backdrop-filter:blur(18px);-webkit-ba
 .approach-airframe{position:absolute;width:21.333333%;height:21.333333%;transform:translate(-50%,-50%);z-index:0;pointer-events:none}
 .approach-model{width:100%;height:100%}
 .approach-flight{position:relative;z-index:1;pointer-events:none}
+
+/* Full-width approach flight, independent of the radar clipping area. */
+.approach{position:relative;overflow:hidden}.approach>.approach-airframe{z-index:2}
