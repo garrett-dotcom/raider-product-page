@@ -54,3 +54,9 @@ header{position:fixed;background:#000000b8;backdrop-filter:blur(18px);-webkit-ba
 @media(max-width:760px){.signal-art{max-width:390px;margin:0 auto}.approach-grid{gap:22px}}
 
 .approach-model{display:block;width:128px;height:128px;pointer-events:none}
+
+/* Keep WebGL canvases in HTML: Safari misplaces transformed SVG foreignObjects. */
+.signal-art{isolation:isolate}
+.approach-airframe{position:absolute;width:21.333333%;height:21.333333%;transform:translate(-50%,-50%);z-index:0;pointer-events:none}
+.approach-model{width:100%;height:100%}
+.approach-flight{position:relative;z-index:1;pointer-events:none}
