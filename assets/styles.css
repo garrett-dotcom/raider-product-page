@@ -52,3 +52,5 @@ header{position:fixed;background:#000000b8;backdrop-filter:blur(18px);-webkit-ba
 .approach-flight{display:block;width:100%;height:auto;overflow:visible}
 .approach-airframe{will-change:transform}
 @media(max-width:760px){.signal-art{max-width:390px;margin:0 auto}.approach-grid{gap:22px}}
+
+.approach-model{display:block;width:128px;height:128px;pointer-events:none}

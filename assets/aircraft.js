@@ -1,6 +1,6 @@
 // A persistent textured airframe, projected with a rigid rotation about its nose-tail axis.
 // UVs and vertex positions never change during flight; only roll and door hinge angles do.
-window.createRaiderAircraft = canvas => {
+window.createRaiderAircraft = (canvas, camera = {}) => {
   const gl=canvas.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false});
   if(!gl) {
     // A detailed level profile remains available on devices without WebGL.
@@ -13,9 +13,11 @@ window.createRaiderAircraft = canvas => {
   const program=gl.createProgram();
   gl.attachShader(program,shader(gl.VERTEX_SHADER,`
     attribute vec3 position;attribute vec2 uv;varying vec2 texUV;
-    uniform float roll;uniform float projectionScale;
+    uniform float roll;uniform float projectionScale;uniform float heading;uniform float elevation;
     void main(){float c=cos(roll),s=sin(roll);float y=position.y*c-position.z*s;float z=position.y*s+position.z*c;
-      gl_Position=vec4(position.x*projectionScale,y*projectionScale,-z/4.0,1.0);texUV=uv;}
+      float ch=cos(heading),sh=sin(heading);float x=position.x*ch-z*sh;float yawZ=position.x*sh+z*ch;
+      float ce=cos(elevation),se=sin(elevation);float screenY=y*ce-yawZ*se;float depth=y*se+yawZ*ce;
+      gl_Position=vec4(x*projectionScale,screenY*projectionScale,-depth/4.0,1.0);texUV=uv;}
   `));
   gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`
     precision mediump float;varying vec2 texUV;uniform sampler2D artwork;uniform vec4 tint;
@@ -23,7 +25,7 @@ window.createRaiderAircraft = canvas => {
   `));
   gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));
   gl.useProgram(program);
-  const locations={position:gl.getAttribLocation(program,'position'),uv:gl.getAttribLocation(program,'uv'),roll:gl.getUniformLocation(program,'roll'),projection:gl.getUniformLocation(program,'projectionScale'),tint:gl.getUniformLocation(program,'tint')};
+  const locations={position:gl.getAttribLocation(program,'position'),uv:gl.getAttribLocation(program,'uv'),roll:gl.getUniformLocation(program,'roll'),heading:gl.getUniformLocation(program,'heading'),elevation:gl.getUniformLocation(program,'elevation'),projection:gl.getUniformLocation(program,'projectionScale'),tint:gl.getUniformLocation(program,'tint')};
   const makeMesh=data=>{const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW);return {buffer,count:data.length/5};};
   const quad=(a,b,c,d)=>[...a,...b,...c,...a,...c,...d];
   const wingData=[],undersideData=[];
@@ -64,7 +66,9 @@ window.createRaiderAircraft = canvas => {
     if(width!==size||ratio!==dpr){width=size;ratio=dpr;canvas.width=Math.ceil(size*2*dpr);canvas.height=Math.ceil(size*2*dpr);}
     gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(ready<2)return;
     gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
-    gl.uniform1f(locations.roll,bank*Math.PI/180);gl.uniform1f(locations.projection,1/1.45);
+    gl.uniform1f(locations.roll,bank*Math.PI/180);gl.uniform1f(locations.projection,camera.projection || 1/1.45);
+    gl.uniform1f(locations.heading,camera.heading || 0);
+    gl.uniform1f(locations.elevation,camera.elevation || 0);
     draw(underside,overhead,[.58,.62,.66,1]);draw(wing,overhead);profiles.forEach(p=>draw(p,side));
     const commandedAngle=doors*Math.PI/180,edges=[],cavity=[],roots=[];
     for(const [index,sign] of [-1,1].entries()) {
